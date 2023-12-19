@@ -1,4 +1,8 @@
-import { LoginUserData, RegisterUserData } from '../Interfaces/IUserData';
+import {
+    LoginUserData,
+    RegisterUserData,
+    UserSession,
+} from '../Interfaces/IUserData';
 import * as api from './api';
 
 export const endpoints = {
@@ -10,11 +14,15 @@ export const endpoints = {
         noteId ? `/items/notes/${noteId}` : `/items/notes`,
 };
 
-export const registerUser = async (userData: RegisterUserData) => {
+export const registerUser = async (
+    userData: RegisterUserData
+): Promise<UserSession> => {
     return api.post(endpoints.registerUser, userData);
 };
 
-export const loginUser = async (userData: LoginUserData) => {
+export const loginUser = async (
+    userData: LoginUserData
+): Promise<UserSession> => {
     return api.post(endpoints.loginUser, userData);
 };
 

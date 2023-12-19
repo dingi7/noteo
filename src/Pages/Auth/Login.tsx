@@ -1,41 +1,41 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthInput } from '../../Components/ui/auth-input';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { Logo } from '../../Components/ui/logo';
 import { Button } from '../../Components/ui/button';
 import { Navbar } from '../../Components/ui/navbar';
-import { useIsAuthenticated, useSignIn } from 'react-auth-kit';
+import { useIsAuthenticated } from 'react-auth-kit';
 import { loginUser } from '../../api/requests';
+import { LoginUserData } from '../../Interfaces/IUserData';
+import { useAuth } from './hooks/useAuth';
+import useFormData from './hooks/useFormData';
+import { errorNotification } from '../../util/notificationHandler';
 
-type Props = {};
+const Login = () => {
+    const authenticateUser = useAuth();
 
-export const Login = (props: Props) => {
-    const signIn = useSignIn();
     const navigate = useNavigate();
     const isAuth = useIsAuthenticated();
     useEffect(() => {
         if (isAuth()) {
             navigate('/');
-            // errorNotification('You are already logged in');
+            errorNotification('You are already logged in');
         }
     }, [isAuth, navigate]);
-    const [userData, setUserData] = useState({
+    const [loginData, handleInputChange] = useFormData<LoginUserData>({
         email: '',
         password: '',
     });
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         try {
-            const response = await loginUser(userData);
-            signIn({
-                token: response.accessToken,
-                expiresIn: 9999, // change this later
-                tokenType: 'Bearer',
-                authState: response,
-            });
+            if (!loginData?.email || !loginData?.password)
+                throw new Error('Please fill in all the fields');
+            const response = await loginUser(loginData!);
+            await authenticateUser(response);
             navigate('/');
         } catch (err: any) {
-            // errorNotification(err.message);
+            errorNotification(err.message);
         }
     };
 
@@ -52,13 +52,13 @@ export const Login = (props: Props) => {
                             type="email"
                             text="Email"
                             id="email"
-                            setUserData={setUserData}
+                            onChange={handleInputChange}
                         />
                         <AuthInput
                             type="password"
                             text="Password"
                             id="password"
-                            setUserData={setUserData}
+                            onChange={handleInputChange}
                         />
                         <div className="text-black text-left">
                             Not registered?{' '}
@@ -79,3 +79,5 @@ export const Login = (props: Props) => {
         </div>
     );
 };
+
+export default Login;

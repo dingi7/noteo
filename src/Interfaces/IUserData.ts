@@ -11,7 +11,7 @@ export interface LoginUserData {
     password: string;
 }
 
-export interface RegisterResponse {
+export interface UserSession {
     _id: string;
     username: string;
     email: string;

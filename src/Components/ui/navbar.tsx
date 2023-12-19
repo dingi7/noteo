@@ -11,28 +11,6 @@ export const Navbar = () => {
             <div className="md:max-w-screen-2xl mx-auto flex items-center w-full justify-between">
                 <Logo />
                 <div className="space-x-4 md:block md:w-auto flex items-center justify-between w-full">
-                    {/* <Link to="/courses">
-                        <Button variant={'gray'} size="sm">
-                            Courses
-                        </Button>
-                    </Link>
-                    <Link to="/profile">
-                        <button className="bg-neutral-200 text-secondary-foreground hover:bg-neutral-300 inline-flex items-center justify-center text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-9 rounded-md px-3">
-                            Profile
-                        </button>
-                    </Link>
-                    <>
-                        <Link to="/login">
-                            <button className="bg-neutral-200 text-secondary-foreground hover:bg-neutral-300 inline-flex items-center justify-center text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-9 rounded-md px-3">
-                                Login
-                            </button>
-                        </Link>
-                        <Link to="/register">
-                            <button className="bg-neutral-200 text-secondary-foreground hover:bg-neutral-300 inline-flex items-center justify-center text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-9 rounded-md px-3">
-                                Register
-                            </button>
-                        </Link>
-                    </> */}
                     {isAuth() ? (
                         <Button variant={'gray'} size="sm">
                             <Link to="/dashboard">Dashboard</Link>
