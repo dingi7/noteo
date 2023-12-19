@@ -71,7 +71,7 @@ const Dashboard: React.FC = () => {
         <div className="flex h-screen">
             <Navbar></Navbar>
             <div className="w-1/3 bg-gray-200 overflow-auto">
-                <FolderList folders={folders} onNoteSelect={setSelectedNote} />
+                <FolderList folders={folders} onNoteSelect={setSelectedNote} setFolders={setFolders} />
             </div>
             <div className="w-2/3 p-4 overflow-auto">
                 {selectedNote && (
