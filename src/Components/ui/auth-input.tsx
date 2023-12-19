@@ -5,10 +5,11 @@ import { Eye, EyeOff } from 'lucide-react';
 type Props = {
     type: string;
     text: string;
-    id: string;
-    setUserData:
-        | React.Dispatch<React.SetStateAction<RegisterUserData>>
-        | React.Dispatch<React.SetStateAction<LoginUserData>>;
+    id: keyof LoginUserData | keyof RegisterUserData;
+    // setUserData:
+    //     | React.Dispatch<React.SetStateAction<RegisterUserData>>
+    //     | React.Dispatch<React.SetStateAction<LoginUserData>>;
+    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 };
 
 export const AuthInput = (props: Props) => {
@@ -32,11 +33,7 @@ export const AuthInput = (props: Props) => {
                     id={props.id}
                     type={isPasswordInput && showPassword ? 'text' : props.type}
                     placeholder={props.text}
-                    onChange={(e) => {
-                        props.setUserData((prevState: any) => {
-                            return { ...prevState, [props.id]: e.target.value };
-                        });
-                    }}
+                    onChange={props.onChange}
                 />
                 {isPasswordInput && (
                     <button
