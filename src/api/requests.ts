@@ -50,8 +50,8 @@ export const getNote = async (noteId: string) => {
     return api.get(endpoints.note(noteId));
 };
 
-export const createNote = async (noteData: any) => {
-    return api.post(endpoints.note(null), noteData);
+export const createNote = async (name: string, folderId: string) => {
+    return api.post(endpoints.note(null), { name, folderId });
 };
 
 export const deleteNote = async (noteId: string) => {

@@ -1,6 +1,6 @@
 // src/NoteViewer.tsx
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { INote } from '../../Interfaces/IItems';
 
 interface Props {

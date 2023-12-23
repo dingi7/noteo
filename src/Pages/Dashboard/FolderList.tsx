@@ -3,6 +3,7 @@
 import React, { Dispatch, SetStateAction, useState } from 'react';
 import { IFolder, INote } from '../../Interfaces/IItems';
 import { Edit, Folder, StickyNote, Plus } from 'lucide-react';
+import { createFolder, createNote, renameFolder } from '../../api/requests';
 
 interface Props {
     folders: IFolder[];
@@ -10,11 +11,16 @@ interface Props {
     setFolders: Dispatch<SetStateAction<IFolder[]>>;
 }
 
-const FolderList: React.FC<Props> = ({ folders, onNoteSelect, setFolders }) => {
+const FolderList: React.FC<Props> = ({
+    folders,
+    onNoteSelect,
+    setFolders,
+}) => {
     const [editingFolderId, setEditingFolderId] = useState<string | null>(null);
     const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
     const [folderName, setFolderName] = useState<string>('');
-    const [noteTitle, setNoteTitle] = useState<string>('');
+    const [noteTitle, setNoteName] = useState<string>('');
+    const [openFolderId, setOpenFolderId] = useState<string | null>(null);
 
     const handleFolderEdit = (folder: IFolder) => {
         setEditingFolderId(folder._id);
@@ -23,38 +29,27 @@ const FolderList: React.FC<Props> = ({ folders, onNoteSelect, setFolders }) => {
 
     const handleNoteEdit = (note: INote) => {
         setEditingNoteId(note._id);
-        setNoteTitle(note.title);
+        setNoteName(note.name);
     };
-    const handleNewNote = (folder: IFolder) => {
-        const newId = () => {
-            const timestamp = Date.now().toString(36);
-            const randomString = Math.random().toString(36).substring(2, 5);
-            return timestamp + randomString;
-        };
+    const handleNewNote = async (folder: IFolder) => {
+        const newNote = await createNote('New Note', folder._id);
         const updatedFolders = folders.map((folder) => {
             if (folder._id === openFolderId) {
-                const newNote = {
-                    name: 'New Note',
-                    title: 'Add Title',
-                    body: 'Add note ...',
-                    folder: folder._id,
-                    _id: newId(),
-                };
                 return { ...folder, notes: [...folder.notes, newNote] };
             }
             return folder;
         });
         setFolders(updatedFolders);
-        setNoteTitle('');
-
-        // change to use database instead of state
+        setNoteName('');
     };
 
-    const saveFolder = () => {
-        // onFolderUpdate({
-        //     ...folders.find((f) => f._id === editingFolderId)!,
-        //     name: folderName,
-        // });
+    const handleNewFolder = async () => {
+        const newFolder = await createFolder('New Folder');
+        setFolders([...folders, newFolder]);
+        setFolderName('');
+    };
+
+    const saveFolder = async () => {
         setFolders(
             folders.map((folder) => {
                 if (folder._id === editingFolderId) {
@@ -63,20 +58,21 @@ const FolderList: React.FC<Props> = ({ folders, onNoteSelect, setFolders }) => {
                 return folder;
             })
         );
+        await renameFolder(editingFolderId!, folderName);
         setEditingFolderId(null);
     };
 
-    const saveNote = () => {
+    const saveNote = async () => {
         const folder = folders.find((f) =>
             f.notes.some((n) => n._id === editingNoteId)
         )!;
+
         // onNoteUpdate({
         //     ...folder.notes.find((n) => n._id === editingNoteId)!,
         //     title: noteTitle,
         // });
         setEditingNoteId(null);
     };
-    const [openFolderId, setOpenFolderId] = useState<string | null>(null);
 
     const toggleFolder = (folderId: string) => {
         setOpenFolderId(openFolderId?.includes(folderId) ? null : folderId);
@@ -136,7 +132,7 @@ const FolderList: React.FC<Props> = ({ folders, onNoteSelect, setFolders }) => {
                                         <StickyNote />
                                     </span>
                                     <h3 className="text-md font-semibold text-gray-800">
-                                        {note.title}
+                                        {note.name}
                                     </h3>
                                 </div>
                             ))}
@@ -155,6 +151,19 @@ const FolderList: React.FC<Props> = ({ folders, onNoteSelect, setFolders }) => {
                     )}
                 </div>
             ))}
+            <div
+                className="cursor-pointer p-3 group mb-2 ml-2 mr-2 rounded-lg shadow hover:shadow-md transition-shadow duration-200 ease-in-out flex items-center gap-2"
+                onClick={() => {
+                    handleNewFolder();
+                }}
+            >
+                <span>
+                    <Plus />
+                </span>
+                <h3 className="text-md font-normal text-gray-800">
+                    Add Folder
+                </h3>
+            </div>
         </div>
     );
 };
