@@ -1,20 +1,24 @@
 // src/NoteViewer.tsx
 
-import React, { useState } from "react";
-import { INote } from "../../Interfaces/IItems";
+import React, { useEffect, useState } from 'react';
+import { INote } from '../../Interfaces/IItems';
 
 interface Props {
     note: INote;
-    onUpdateNote: (updatedNote: INote) => void; // Add a prop to handle note update
+    setSelectedNote: React.Dispatch<React.SetStateAction<INote | null>>;
+    // onUpdateNote: (updatedNote: INote) => void; // Add a prop to handle note update
 }
 
-const NoteViewer: React.FC<Props> = ({ note, onUpdateNote }) => {
-    const [editedNote, setEditedNote] = useState<INote>(note);
+const NoteViewer: React.FC<Props> = ({ note, setSelectedNote }) => {
+    // const [editedNote, setEditedNote] = useState<INote>(note);
+    // useEffect(() => {
+    //     setEditedNote(note);
+    // }, [note]);
 
     const handleChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
     ) => {
-        setEditedNote({ ...editedNote, [e.target.name]: e.target.value });
+        setSelectedNote({ ...note, [e.target.name]: e.target.value });
     };
 
     return (
@@ -22,14 +26,14 @@ const NoteViewer: React.FC<Props> = ({ note, onUpdateNote }) => {
             <input
                 type="text"
                 name="title"
-                value={editedNote.title}
+                value={note.title}
                 onChange={handleChange}
                 className="text-2xl font-semibold mb-6 w-full bg-white border-b-2 border-gray-300 focus:border-blue-500 focus:outline-none text-center py-2"
             />
 
             <textarea
                 name="body"
-                value={editedNote.body}
+                value={note.body}
                 onChange={handleChange}
                 className="w-full h-[80vh] bg-white p-4 border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring focus:ring-blue-500 resize-none text-lg"
             />

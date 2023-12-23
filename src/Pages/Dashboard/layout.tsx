@@ -77,7 +77,7 @@ const Dashboard: React.FC = () => {
                 {selectedNote && (
                     <NoteViewer
                         note={selectedNote}
-                        onUpdateNote={handleUpdateNote}
+                        setSelectedNote={setSelectedNote}
                     />
                 )}
             </div>

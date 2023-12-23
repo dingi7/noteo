@@ -1,8 +1,8 @@
 // src/FolderList.tsx
 
-import React, { Dispatch, SetStateAction, useState } from "react";
-import { IFolder, INote } from "../../Interfaces/IItems";
-import { Edit, Folder, StickyNote, Plus } from "lucide-react";
+import React, { Dispatch, SetStateAction, useState } from 'react';
+import { IFolder, INote } from '../../Interfaces/IItems';
+import { Edit, Folder, StickyNote, Plus } from 'lucide-react';
 
 interface Props {
     folders: IFolder[];
@@ -13,8 +13,8 @@ interface Props {
 const FolderList: React.FC<Props> = ({ folders, onNoteSelect, setFolders }) => {
     const [editingFolderId, setEditingFolderId] = useState<string | null>(null);
     const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
-    const [folderName, setFolderName] = useState<string>("");
-    const [noteTitle, setNoteTitle] = useState<string>("");
+    const [folderName, setFolderName] = useState<string>('');
+    const [noteTitle, setNoteTitle] = useState<string>('');
 
     const handleFolderEdit = (folder: IFolder) => {
         setEditingFolderId(folder._id);
@@ -34,9 +34,9 @@ const FolderList: React.FC<Props> = ({ folders, onNoteSelect, setFolders }) => {
         const updatedFolders = folders.map((folder) => {
             if (folder._id === openFolderId) {
                 const newNote = {
-                    name: "New Note",
-                    title: "Add Title",
-                    body: "Add note ...",
+                    name: 'New Note',
+                    title: 'Add Title',
+                    body: 'Add note ...',
                     folder: folder._id,
                     _id: newId(),
                 };
@@ -45,7 +45,9 @@ const FolderList: React.FC<Props> = ({ folders, onNoteSelect, setFolders }) => {
             return folder;
         });
         setFolders(updatedFolders);
-        setNoteTitle("");
+        setNoteTitle('');
+
+        // change to use database instead of state
     };
 
     const saveFolder = () => {
@@ -53,6 +55,14 @@ const FolderList: React.FC<Props> = ({ folders, onNoteSelect, setFolders }) => {
         //     ...folders.find((f) => f._id === editingFolderId)!,
         //     name: folderName,
         // });
+        setFolders(
+            folders.map((folder) => {
+                if (folder._id === editingFolderId) {
+                    return { ...folder, name: folderName };
+                }
+                return folder;
+            })
+        );
         setEditingFolderId(null);
     };
 
@@ -83,6 +93,11 @@ const FolderList: React.FC<Props> = ({ folders, onNoteSelect, setFolders }) => {
                                 value={folderName}
                                 onChange={(e) => setFolderName(e.target.value)}
                                 onBlur={saveFolder}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                        saveFolder();
+                                    }
+                                }}
                                 autoFocus
                                 className="w-full p-3 bg-white border border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:outline-none transition duration-300 ease-in-out"
                             />
@@ -95,10 +110,7 @@ const FolderList: React.FC<Props> = ({ folders, onNoteSelect, setFolders }) => {
                             <span className="text-xl text-gray-600">
                                 <Folder />
                             </span>
-                            <span
-                                className="flex-grow ml-2 font-semibold text-lg text-gray-800 cursor-pointer"
-                                onClick={() => onNoteSelect(folder.notes[0])}
-                            >
+                            <span className="flex-grow ml-2 font-semibold text-lg text-gray-800 cursor-pointer">
                                 {folder.name}
                             </span>
                             <span className="opacity-0 transition duration-300 ease-in-out group-hover:opacity-100">
