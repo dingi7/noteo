@@ -116,7 +116,10 @@ const FolderList: React.FC<Props> = ({ folders, onNoteSelect, setFolders }) => {
                             <span className="opacity-0 transition duration-300 ease-in-out group-hover:opacity-100">
                                 <Edit
                                     className="text-gray-600 hover:text-gray-800 cursor-pointer"
-                                    onClick={() => handleFolderEdit(folder)}
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleFolderEdit(folder);
+                                    }}
                                 />
                             </span>
                         </div>

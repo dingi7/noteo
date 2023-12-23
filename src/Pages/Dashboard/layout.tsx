@@ -8,9 +8,6 @@ import { Navbar } from '../../Components/ui/navbar';
 import { getFolders } from '../../api/requests';
 
 const Dashboard: React.FC = () => {
-    const handleUpdateNote = (updatedNote: INote) => {
-        // Logic to update the note in the state or backend
-    };
 
     const fetchData = useCallback(async () => {
         const data = await getFolders();
