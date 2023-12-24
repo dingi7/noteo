@@ -1,3 +1,4 @@
+import { INote } from '../Interfaces/IItems';
 import {
     LoginUserData,
     RegisterUserData,
@@ -60,4 +61,11 @@ export const deleteNote = async (noteId: string) => {
 
 export const getNotes = async () => {
     return api.get(endpoints.note(null));
+};
+
+export const updateNote = async (
+    noteId: string,
+    updatedFields: { title?: string; body?: string }
+): Promise<INote> => {
+    return await api.put(endpoints.note(noteId), updatedFields);
 };

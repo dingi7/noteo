@@ -5,9 +5,11 @@ import FolderList from './FolderList';
 import NoteViewer from './NoteViewer';
 import { IFolder, INote } from '../../Interfaces/IItems';
 import { Navbar } from '../../Components/ui/navbar';
-import { getFolders } from '../../api/requests';
+import { getFolders, updateNote } from '../../api/requests';
 
 const Dashboard: React.FC = () => {
+    const [folders, setFolders] = useState<IFolder[]>([]);
+    const [selectedNote, setSelectedNote] = useState<INote | null>(null);
     const fetchData = useCallback(async () => {
         const data = await getFolders();
         setFolders(data);
@@ -17,8 +19,37 @@ const Dashboard: React.FC = () => {
         fetchData();
     }, [fetchData]);
 
-    const [folders, setFolders] = useState<IFolder[]>([]);
-    const [selectedNote, setSelectedNote] = useState<INote | null>(null);
+    const updateNoteInFolders = async (
+        noteId: string,
+        updatedFields: {
+            title?: string;
+            body?: string;
+        }
+    ) => {
+        const updatedNote: INote = await updateNote(noteId, updatedFields);
+
+        const updatedFolders = folders.map((folder) => {
+            const isMatchingFolder =
+                typeof updatedNote.folder === 'string'
+                    ? folder._id === updatedNote.folder
+                    : folder._id === updatedNote.folder._id;
+
+            if (isMatchingFolder) {
+                return {
+                    ...folder,
+                    notes: folder.notes.map((note) => {
+                        if (note._id === noteId) {
+                            return updatedNote;
+                        }
+                        return note;
+                    }),
+                };
+            }
+            return folder;
+        });
+
+        setFolders(updatedFolders);
+    };
 
     return (
         <div className="flex h-screen">
@@ -35,6 +66,7 @@ const Dashboard: React.FC = () => {
                     <NoteViewer
                         note={selectedNote}
                         setSelectedNote={setSelectedNote}
+                        updateNoteInFolders={updateNoteInFolders}
                     />
                 )}
             </div>
