@@ -2,15 +2,7 @@
 
 import React, { Dispatch, SetStateAction, useState } from 'react';
 import { IFolder, INote } from '../../Interfaces/IItems';
-import {
-    Edit,
-    Folder,
-    StickyNote,
-    Plus,
-    Delete,
-    DeleteIcon,
-    Trash2,
-} from 'lucide-react';
+import { Edit, Folder, StickyNote, Plus, Trash2 } from 'lucide-react';
 import {
     createFolder,
     createNote,
@@ -20,11 +12,17 @@ import {
 
 interface Props {
     folders: IFolder[];
-    onNoteSelect: (note: INote) => void;
+    onNoteSelect: (note: INote | null) => void;
     setFolders: Dispatch<SetStateAction<IFolder[]>>;
+    selecteNote: INote | null;
 }
 
-const FolderList: React.FC<Props> = ({ folders, onNoteSelect, setFolders }) => {
+const FolderList: React.FC<Props> = ({
+    folders,
+    onNoteSelect,
+    setFolders,
+    selecteNote,
+}) => {
     const [editingFolderId, setEditingFolderId] = useState<string | null>(null);
     const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
     const [folderName, setFolderName] = useState<string>('');
@@ -95,6 +93,7 @@ const FolderList: React.FC<Props> = ({ folders, onNoteSelect, setFolders }) => {
 
     const toggleFolder = (folderId: string) => {
         setOpenFolderId(openFolderId?.includes(folderId) ? null : folderId);
+        onNoteSelect(null);
     };
 
     return (
@@ -151,7 +150,7 @@ const FolderList: React.FC<Props> = ({ folders, onNoteSelect, setFolders }) => {
                     {openFolderId === folder._id && (
                         <div className="pl-5 mt-2 pr-2">
                             {folder.notes.map((note) => (
-                                <div key={note._id} className="group mb-2">
+                                <div key={note._id} className={`group mb-2`}>
                                     {editingNoteId === note._id ? (
                                         <input
                                             type="text"
@@ -170,7 +169,11 @@ const FolderList: React.FC<Props> = ({ folders, onNoteSelect, setFolders }) => {
                                         />
                                     ) : (
                                         <div
-                                            className="group cursor-pointer p-3 bg-white rounded-lg shadow hover:shadow-md transition-shadow duration-200 ease-in-out flex items-center gap-2"
+                                            className={`group cursor-pointer p-3 bg-white rounded-lg shadow hover:shadow-md transition-shadow duration-200 ease-in-out flex items-center gap-2 ${
+                                                note._id === selecteNote?._id
+                                                    ? 'bg-blue-100'
+                                                    : 'bg-white'
+                                            }`}
                                             onClick={() => onNoteSelect(note)}
                                         >
                                             <span>
