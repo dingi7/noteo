@@ -1,7 +1,5 @@
-// src/NoteViewer.tsx
-
-import React, { useEffect } from 'react';
-import { INote } from '../../Interfaces/IItems';
+import React, { useEffect } from "react";
+import { INote } from "../../Interfaces/IItems";
 
 interface Props {
     note: INote;
@@ -49,9 +47,14 @@ const NoteViewer: React.FC<Props> = ({
     };
 
     return (
-        <div className="mt-20 mx-4">
-            <div className="flex justify-end items-center mb-4">
-                <label className="mr-2">Auto Save:</label>
+        <div className="mt-16 mx-4">
+            <div className="flex justify-end mb-2 items-center">
+                <button
+                    className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-300 ease-in-out mr-2"
+                >
+                    Save Note
+                </button>
+                <label className="mr-2 text-lg font-semibold">Auto Save:</label>
                 <div className="flex items-center">
                     <label className="relative inline-flex items-center cursor-pointer">
                         <input
@@ -68,16 +71,16 @@ const NoteViewer: React.FC<Props> = ({
             <input
                 type="text"
                 name="title"
-                value={note.title || ''}
+                value={note.title || ""}
                 onChange={handleChange}
                 className="text-2xl font-semibold mb-6 w-full bg-white border-b-2 border-gray-300 focus:border-blue-500 focus:outline-none text-center py-2"
             />
 
             <textarea
                 name="body"
-                value={note.body || ''}
+                value={note.body || ""}
                 onChange={handleChange}
-                className="w-full h-[80vh] bg-white p-4 border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring focus:ring-blue-500 resize-none text-lg"
+                className="w-full h-[70vh] bg-white p-4 border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring focus:ring-blue-500 resize-none text-lg"
             />
         </div>
     );
