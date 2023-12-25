@@ -68,6 +68,7 @@ const FolderList: React.FC<Props> = ({ folders, onNoteSelect, setFolders }) => {
             folders.map((folder) => {
                 if (folder._id === openFolderId) {
                     return {
+                        // some folderq
                         ...folder,
                         notes: folder.notes.map((note) => {
                             if (note._id === editingNoteId) {
