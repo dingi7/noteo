@@ -1,14 +1,22 @@
 // src/FolderList.tsx
 
-import React, { Dispatch, SetStateAction, useState } from "react";
-import { IFolder, INote } from "../../Interfaces/IItems";
-import { Edit, Folder, StickyNote, Plus } from "lucide-react";
+import React, { Dispatch, SetStateAction, useState } from 'react';
+import { IFolder, INote } from '../../Interfaces/IItems';
+import {
+    Edit,
+    Folder,
+    StickyNote,
+    Plus,
+    Delete,
+    DeleteIcon,
+    Trash2,
+} from 'lucide-react';
 import {
     createFolder,
     createNote,
     renameFolder,
     renameNote,
-} from "../../api/requests";
+} from '../../api/requests';
 
 interface Props {
     folders: IFolder[];
@@ -19,8 +27,8 @@ interface Props {
 const FolderList: React.FC<Props> = ({ folders, onNoteSelect, setFolders }) => {
     const [editingFolderId, setEditingFolderId] = useState<string | null>(null);
     const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
-    const [folderName, setFolderName] = useState<string>("");
-    const [noteName, setNoteName] = useState<string>("");
+    const [folderName, setFolderName] = useState<string>('');
+    const [noteName, setNoteName] = useState<string>('');
     const [openFolderId, setOpenFolderId] = useState<string | null>(null);
 
     const handleFolderEdit = (folder: IFolder) => {
@@ -33,7 +41,7 @@ const FolderList: React.FC<Props> = ({ folders, onNoteSelect, setFolders }) => {
         setNoteName(note.name);
     };
     const handleNewNote = async (folder: IFolder) => {
-        const newNote = await createNote("New Note", folder._id);
+        const newNote = await createNote('New Note', folder._id);
         const updatedFolders = folders.map((folder) => {
             if (folder._id === openFolderId) {
                 return { ...folder, notes: [...folder.notes, newNote] };
@@ -41,13 +49,13 @@ const FolderList: React.FC<Props> = ({ folders, onNoteSelect, setFolders }) => {
             return folder;
         });
         setFolders(updatedFolders);
-        setNoteName("");
+        setNoteName('');
     };
 
     const handleNewFolder = async () => {
-        const newFolder = await createFolder("New Folder");
+        const newFolder = await createFolder('New Folder');
         setFolders([...folders, newFolder]);
-        setFolderName("");
+        setFolderName('');
     };
 
     const saveFolder = async () => {
@@ -81,8 +89,6 @@ const FolderList: React.FC<Props> = ({ folders, onNoteSelect, setFolders }) => {
                 return folder;
             })
         );
-        console.log("🚀 ~ file: FolderList.tsx:87 ~ saveNote ~ noteName:", noteName)
-        console.log("🚀 ~ file: FolderList.tsx:87 ~ saveNote ~ editingNoteId:", editingNoteId)
         await renameNote(editingNoteId!, noteName);
         setEditingNoteId(null);
     };
@@ -103,7 +109,7 @@ const FolderList: React.FC<Props> = ({ folders, onNoteSelect, setFolders }) => {
                                 onChange={(e) => setFolderName(e.target.value)}
                                 onBlur={saveFolder}
                                 onKeyDown={(e) => {
-                                    if (e.key === "Enter") {
+                                    if (e.key === 'Enter') {
                                         saveFolder();
                                     }
                                 }}
@@ -113,7 +119,7 @@ const FolderList: React.FC<Props> = ({ folders, onNoteSelect, setFolders }) => {
                         </div>
                     ) : (
                         <div
-                            className="flex items-center p-3 m-2 bg-white hover:bg-slate-300 active:bg-slate-400 rounded-lg transition duration-300 ease-in-out shadow-sm"
+                            className="group flex items-center p-3 m-2 bg-white hover:bg-slate-300 active:bg-slate-400 rounded-lg transition duration-300 ease-in-out shadow-sm"
                             onClick={() => toggleFolder(folder._id)}
                         >
                             <span className="text-xl text-gray-600">
@@ -131,12 +137,21 @@ const FolderList: React.FC<Props> = ({ folders, onNoteSelect, setFolders }) => {
                                     }}
                                 />
                             </span>
+                            <span className="opacity-0 transition duration-300 ease-in-out group-hover:opacity-100">
+                                <Trash2
+                                    className="text-gray-600 hover:text-gray-800 cursor-pointer"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        // handleNoteEdit(note);
+                                    }}
+                                />
+                            </span>
                         </div>
                     )}
                     {openFolderId === folder._id && (
                         <div className="pl-5 mt-2 pr-2">
                             {folder.notes.map((note) => (
-                                <div key={note._id} className="mb-2">
+                                <div key={note._id} className="group mb-2">
                                     {editingNoteId === note._id ? (
                                         <input
                                             type="text"
@@ -146,7 +161,7 @@ const FolderList: React.FC<Props> = ({ folders, onNoteSelect, setFolders }) => {
                                             }
                                             onBlur={saveNote}
                                             onKeyDown={(e) => {
-                                                if (e.key === "Enter") {
+                                                if (e.key === 'Enter') {
                                                     saveNote();
                                                 }
                                             }}
@@ -155,7 +170,7 @@ const FolderList: React.FC<Props> = ({ folders, onNoteSelect, setFolders }) => {
                                         />
                                     ) : (
                                         <div
-                                            className="cursor-pointer p-3 bg-white rounded-lg shadow hover:shadow-md transition-shadow duration-200 ease-in-out flex items-center gap-2"
+                                            className="group cursor-pointer p-3 bg-white rounded-lg shadow hover:shadow-md transition-shadow duration-200 ease-in-out flex items-center gap-2"
                                             onClick={() => onNoteSelect(note)}
                                         >
                                             <span>
@@ -173,12 +188,21 @@ const FolderList: React.FC<Props> = ({ folders, onNoteSelect, setFolders }) => {
                                                     }}
                                                 />
                                             </span>
+                                            <span className="opacity-0 transition duration-300 ease-in-out group-hover:opacity-100">
+                                                <Trash2
+                                                    className="text-gray-600 hover:text-gray-800 cursor-pointer"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        // handleNoteEdit(note);
+                                                    }}
+                                                />
+                                            </span>
                                         </div>
                                     )}
                                 </div>
                             ))}
                             <div
-                                className="cursor-pointer p-3 mb-2 bg-white rounded-lg shadow hover:shadow-md transition-shadow duration-200 ease-in-out flex items-center gap-2"
+                                className="group cursor-pointer p-3 mb-2 bg-white rounded-lg shadow hover:shadow-md transition-shadow duration-200 ease-in-out flex items-center gap-2"
                                 onClick={() => handleNewNote(folder)}
                             >
                                 <span>
