@@ -3,7 +3,12 @@
 import React, { Dispatch, SetStateAction, useState } from 'react';
 import { IFolder, INote } from '../../Interfaces/IItems';
 import { Edit, Folder, StickyNote, Plus } from 'lucide-react';
-import { createFolder, createNote, renameFolder } from '../../api/requests';
+import {
+    createFolder,
+    createNote,
+    renameFolder,
+    renameNote,
+} from '../../api/requests';
 
 interface Props {
     folders: IFolder[];
@@ -11,15 +16,11 @@ interface Props {
     setFolders: Dispatch<SetStateAction<IFolder[]>>;
 }
 
-const FolderList: React.FC<Props> = ({
-    folders,
-    onNoteSelect,
-    setFolders,
-}) => {
+const FolderList: React.FC<Props> = ({ folders, onNoteSelect, setFolders }) => {
     const [editingFolderId, setEditingFolderId] = useState<string | null>(null);
     const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
     const [folderName, setFolderName] = useState<string>('');
-    const [noteTitle, setNoteName] = useState<string>('');
+    const [noteName, setNoteName] = useState<string>('');
     const [openFolderId, setOpenFolderId] = useState<string | null>(null);
 
     const handleFolderEdit = (folder: IFolder) => {
@@ -63,14 +64,23 @@ const FolderList: React.FC<Props> = ({
     };
 
     const saveNote = async () => {
-        const folder = folders.find((f) =>
-            f.notes.some((n) => n._id === editingNoteId)
-        )!;
-
-        // onNoteUpdate({
-        //     ...folder.notes.find((n) => n._id === editingNoteId)!,
-        //     title: noteTitle,
-        // });
+        setFolders(
+            folders.map((folder) => {
+                if (folder._id === openFolderId) {
+                    return {
+                        ...folder,
+                        notes: folder.notes.map((note) => {
+                            if (note._id === editingNoteId) {
+                                return { ...note, name: noteName };
+                            }
+                            return note;
+                        }),
+                    };
+                }
+                return folder;
+            })
+        );
+        await renameNote(editingNoteId!, noteName);
         setEditingNoteId(null);
     };
 

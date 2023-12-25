@@ -69,3 +69,7 @@ export const updateNote = async (
 ): Promise<INote> => {
     return await api.put(endpoints.note(noteId), updatedFields);
 };
+
+export const renameNote = async (noteId: string, noteName: string) => {
+    return api.put(endpoints.note(noteId), { name: noteName });
+};
