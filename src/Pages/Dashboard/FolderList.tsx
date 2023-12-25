@@ -1,14 +1,14 @@
 // src/FolderList.tsx
 
-import React, { Dispatch, SetStateAction, useState } from 'react';
-import { IFolder, INote } from '../../Interfaces/IItems';
-import { Edit, Folder, StickyNote, Plus } from 'lucide-react';
+import React, { Dispatch, SetStateAction, useState } from "react";
+import { IFolder, INote } from "../../Interfaces/IItems";
+import { Edit, Folder, StickyNote, Plus } from "lucide-react";
 import {
     createFolder,
     createNote,
     renameFolder,
     renameNote,
-} from '../../api/requests';
+} from "../../api/requests";
 
 interface Props {
     folders: IFolder[];
@@ -19,8 +19,8 @@ interface Props {
 const FolderList: React.FC<Props> = ({ folders, onNoteSelect, setFolders }) => {
     const [editingFolderId, setEditingFolderId] = useState<string | null>(null);
     const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
-    const [folderName, setFolderName] = useState<string>('');
-    const [noteName, setNoteName] = useState<string>('');
+    const [folderName, setFolderName] = useState<string>("");
+    const [noteName, setNoteName] = useState<string>("");
     const [openFolderId, setOpenFolderId] = useState<string | null>(null);
 
     const handleFolderEdit = (folder: IFolder) => {
@@ -33,7 +33,7 @@ const FolderList: React.FC<Props> = ({ folders, onNoteSelect, setFolders }) => {
         setNoteName(note.name);
     };
     const handleNewNote = async (folder: IFolder) => {
-        const newNote = await createNote('New Note', folder._id);
+        const newNote = await createNote("New Note", folder._id);
         const updatedFolders = folders.map((folder) => {
             if (folder._id === openFolderId) {
                 return { ...folder, notes: [...folder.notes, newNote] };
@@ -41,13 +41,13 @@ const FolderList: React.FC<Props> = ({ folders, onNoteSelect, setFolders }) => {
             return folder;
         });
         setFolders(updatedFolders);
-        setNoteName('');
+        setNoteName("");
     };
 
     const handleNewFolder = async () => {
-        const newFolder = await createFolder('New Folder');
+        const newFolder = await createFolder("New Folder");
         setFolders([...folders, newFolder]);
-        setFolderName('');
+        setFolderName("");
     };
 
     const saveFolder = async () => {
@@ -81,6 +81,8 @@ const FolderList: React.FC<Props> = ({ folders, onNoteSelect, setFolders }) => {
                 return folder;
             })
         );
+        console.log("🚀 ~ file: FolderList.tsx:87 ~ saveNote ~ noteName:", noteName)
+        console.log("🚀 ~ file: FolderList.tsx:87 ~ saveNote ~ editingNoteId:", editingNoteId)
         await renameNote(editingNoteId!, noteName);
         setEditingNoteId(null);
     };
@@ -101,7 +103,7 @@ const FolderList: React.FC<Props> = ({ folders, onNoteSelect, setFolders }) => {
                                 onChange={(e) => setFolderName(e.target.value)}
                                 onBlur={saveFolder}
                                 onKeyDown={(e) => {
-                                    if (e.key === 'Enter') {
+                                    if (e.key === "Enter") {
                                         saveFolder();
                                     }
                                 }}
@@ -134,17 +136,45 @@ const FolderList: React.FC<Props> = ({ folders, onNoteSelect, setFolders }) => {
                     {openFolderId === folder._id && (
                         <div className="pl-5 mt-2 pr-2">
                             {folder.notes.map((note) => (
-                                <div
-                                    key={note._id}
-                                    className="cursor-pointer p-3 mb-2 bg-white rounded-lg shadow hover:shadow-md transition-shadow duration-200 ease-in-out flex items-center gap-2"
-                                    onClick={() => onNoteSelect(note)}
-                                >
-                                    <span>
-                                        <StickyNote />
-                                    </span>
-                                    <h3 className="text-md font-semibold text-gray-800">
-                                        {note.name}
-                                    </h3>
+                                <div key={note._id} className="mb-2">
+                                    {editingNoteId === note._id ? (
+                                        <input
+                                            type="text"
+                                            value={noteName}
+                                            onChange={(e) =>
+                                                setNoteName(e.target.value)
+                                            }
+                                            onBlur={saveNote}
+                                            onKeyDown={(e) => {
+                                                if (e.key === "Enter") {
+                                                    saveNote();
+                                                }
+                                            }}
+                                            autoFocus
+                                            className="cursor-pointer p-3 w-full bg-white border border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:outline-none transition duration-300 ease-in-out"
+                                        />
+                                    ) : (
+                                        <div
+                                            className="cursor-pointer p-3 bg-white rounded-lg shadow hover:shadow-md transition-shadow duration-200 ease-in-out flex items-center gap-2"
+                                            onClick={() => onNoteSelect(note)}
+                                        >
+                                            <span>
+                                                <StickyNote />
+                                            </span>
+                                            <h3 className="flex-grow ml-2 font-semibold text-md text-gray-800 cursor-pointer">
+                                                {note.name}
+                                            </h3>
+                                            <span className="opacity-0 transition duration-300 ease-in-out group-hover:opacity-100">
+                                                <Edit
+                                                    className="text-gray-600 hover:text-gray-800 cursor-pointer"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        handleNoteEdit(note);
+                                                    }}
+                                                />
+                                            </span>
+                                        </div>
+                                    )}
                                 </div>
                             ))}
                             <div
