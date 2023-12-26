@@ -1,4 +1,5 @@
 const host = 'https://noteo-back-end.vercel.app/api/v1';
+// const host = 'http://localhost:3000/api/v1';
 
 interface RequestOptions {
     method: string;
