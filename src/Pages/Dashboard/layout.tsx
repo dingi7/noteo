@@ -6,16 +6,21 @@ import NoteViewer from './NoteViewer';
 import { IFolder, INote } from '../../Interfaces/IItems';
 import { Navbar } from '../../Components/ui/navbar';
 import { getFolders, updateNote } from '../../api/requests';
-import { useAuthUser } from 'react-auth-kit';
+import { useAuthUser, useIsAuthenticated } from 'react-auth-kit';
+import { Link } from 'react-router-dom';
 
 const Dashboard: React.FC = () => {
     const user = useAuthUser()();
+    const isAuth = useIsAuthenticated()();
+
     const [folders, setFolders] = useState<IFolder[]>([]);
     const [selectedNote, setSelectedNote] = useState<INote | null>(null);
     const fetchData = useCallback(async () => {
-        const data = await getFolders();
-        setFolders(data);
-    }, []);
+        if (isAuth) {
+            const data = await getFolders();
+            setFolders(data);
+        }
+    }, [isAuth]);
 
     useEffect(() => {
         fetchData();
@@ -52,6 +57,25 @@ const Dashboard: React.FC = () => {
 
         setFolders(updatedFolders);
     };
+
+    if (!isAuth) {
+        return (
+            <div className="flex justify-center items-center h-screen">
+                <Navbar></Navbar>
+                <div className="text-center">
+                    <p className="mb-4 text-lg font-semibold">Not Authorized</p>
+                    <button
+                        // onClick={redirectToLogin}
+                        className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-700 transition duration-300"
+                    >
+                        <Link to="/login">
+                        Go to Login
+                        </Link>
+                    </button>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="flex h-screen">

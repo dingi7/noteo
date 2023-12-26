@@ -10,6 +10,7 @@ import { useAuth } from './hooks/useAuth';
 import useFormData from './hooks/useFormData';
 import { RegisterUserData } from '../../Interfaces/IUserData';
 import { errorNotification } from '../../util/notificationHandler';
+import { Navbar } from '../../Components/ui/navbar';
 
 const Register = () => {
     const authenticateUser = useAuth();
@@ -18,7 +19,7 @@ const Register = () => {
     useEffect(() => {
         if (isAuth()) {
             navigate('/');
-            errorNotification("You are already logged in");
+            errorNotification('You are already logged in');
         }
     }, [isAuth, navigate]);
     const [loginData, handleInputChange] = useFormData<RegisterUserData>({
@@ -44,6 +45,7 @@ const Register = () => {
 
     return (
         <div className="h-screen bg-white flex justify-center items-center">
+            <Navbar></Navbar>
             <div className="w-[600px] border-1 bg-[#e2e2e2] rounded-md flex flex-col p-12 pb-16 justify-between">
                 <div className="mx-auto">
                     <Logo />
