@@ -9,6 +9,7 @@ import {
     renameFolder,
     renameNote,
 } from '../../api/requests';
+import { ConfirmationDialog } from './components/ConfirmationDialog';
 
 interface Props {
     folders: IFolder[];
@@ -23,6 +24,9 @@ const FolderList: React.FC<Props> = ({
     setFolders,
     selecteNote,
 }) => {
+    const [isFolderDialogVisible, setIsFolderDialogVisible] = useState(false);
+    const [isNoteDialogVisible, setIsNoteDialogVisible] = useState(false);
+
     const [editingFolderId, setEditingFolderId] = useState<string | null>(null);
     const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
     const [folderName, setFolderName] = useState<string>('');
@@ -74,7 +78,6 @@ const FolderList: React.FC<Props> = ({
             folders.map((folder) => {
                 if (folder._id === openFolderId) {
                     return {
-                        // some folderq
                         ...folder,
                         notes: folder.notes.map((note) => {
                             if (note._id === editingNoteId) {
@@ -98,6 +101,18 @@ const FolderList: React.FC<Props> = ({
 
     return (
         <div className="mt-20">
+            <ConfirmationDialog
+                isVisible={isFolderDialogVisible}
+                message="Are you sure you want to delete this folder?"
+                onConfirm={() => {}}
+                onCancel={() => setIsFolderDialogVisible(false)}
+            />
+            <ConfirmationDialog
+                isVisible={isNoteDialogVisible}
+                message="Are you sure you want to delete this note?"
+                onConfirm={() => {}}
+                onCancel={() => setIsNoteDialogVisible(false)}
+            />
             {folders.map((folder) => (
                 <div key={folder._id} className="mb-2 cursor-pointer">
                     {editingFolderId === folder._id ? (
@@ -141,7 +156,7 @@ const FolderList: React.FC<Props> = ({
                                     className="text-gray-600 hover:text-gray-800 cursor-pointer"
                                     onClick={(e) => {
                                         e.stopPropagation();
-                                        // handleNoteEdit(note);
+                                        setIsFolderDialogVisible(true);
                                     }}
                                 />
                             </span>
@@ -196,7 +211,9 @@ const FolderList: React.FC<Props> = ({
                                                     className="text-gray-600 hover:text-gray-800 cursor-pointer"
                                                     onClick={(e) => {
                                                         e.stopPropagation();
-                                                        // handleNoteEdit(note);
+                                                        setIsNoteDialogVisible(
+                                                            true
+                                                        );
                                                     }}
                                                 />
                                             </span>

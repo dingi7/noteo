@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { INote } from '../../Interfaces/IItems';
 import { toggleAutoSave } from '../../api/requests';
+import { Button } from '../../Components/ui/button';
 
 interface Props {
     note: INote;
@@ -40,6 +41,15 @@ const NoteViewer: React.FC<Props> = ({
         };
     }, [autoSave, newChanges, note, updateNoteInFolders]);
 
+    const handleSave = () => {
+        if (!newChanges) return;
+        updateNoteInFolders(note._id, {
+            title: note.title,
+            body: note.body,
+        });
+        setNewChanges(false);
+    };
+
     const handleChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
     ) => {
@@ -54,12 +64,19 @@ const NoteViewer: React.FC<Props> = ({
 
     return (
         <div className="mt-16 mx-4">
-            <div className="flex justify-end mb-2 items-center">
-                <button className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-300 ease-in-out mr-2">
-                    Save Note
-                </button>
-                <label className="mr-2 text-lg font-semibold">Auto Save:</label>
+            <div className="flex justify-between mb-2 items-center">
+                <Button
+                    variant={'gray'}
+                    size="default"
+                    className="mr-5"
+                    onClick={handleSave}
+                >
+                    Save
+                </Button>
                 <div className="flex items-center">
+                    <label className="mr-2 text-lg font-semibold ml-5">
+                        Auto Save:
+                    </label>
                     <label className="relative inline-flex items-center cursor-pointer">
                         <input
                             type="checkbox"
