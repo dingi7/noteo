@@ -111,6 +111,7 @@ const NoteViewer: React.FC<Props> = ({
                 name="title"
                 value={note.title || ''}
                 onChange={handleChange}
+                placeholder="Enter title here..."
                 className="text-2xl font-semibold mb-6 w-full bg-white border-b-2 border-gray-300 focus:border-blue-500 focus:outline-none text-center py-2"
             />
 
@@ -118,6 +119,7 @@ const NoteViewer: React.FC<Props> = ({
                 name="body"
                 value={note.body || ''}
                 onChange={handleChange}
+                placeholder="Note body"
                 className="w-full h-[70vh] bg-white p-4 border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring focus:ring-blue-500 resize-none text-lg"
             />
         </div>
