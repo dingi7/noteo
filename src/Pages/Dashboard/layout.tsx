@@ -64,14 +64,11 @@ const Dashboard: React.FC = () => {
                 <Navbar></Navbar>
                 <div className="text-center">
                     <p className="mb-4 text-lg font-semibold">Not Authorized</p>
-                    <button
-                        // onClick={redirectToLogin}
-                        className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-700 transition duration-300"
-                    >
-                        <Link to="/login">
-                        Go to Login
-                        </Link>
-                    </button>
+                    <Link to="/login">
+                        <button className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-700 transition duration-300">
+                            Go to Login
+                        </button>
+                    </Link>
                 </div>
             </div>
         );
