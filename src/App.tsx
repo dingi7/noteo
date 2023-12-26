@@ -5,7 +5,6 @@ import { ToastContainer } from 'react-toastify';
 
 // Page Imports
 import HomePage from './Pages/HomePage/layout';
-import ProfilePage from './Pages/ProfilePage/Profile';
 import PrivacyPolicyPage from './Pages/PrivacyPolicy/PrivacyPolicy';
 import TermsOfServicePage from './Pages/TermsOfService/TermsOfService';
 import Dashboard from './Pages/Dashboard/layout';
@@ -44,7 +43,6 @@ function App() {
                         <Route path="/login" element={<Login />} />
                         <Route path="/register" element={<Register />} />
                         <Route path="/dashboard" element={<Dashboard />} />
-                        <Route path="/profile" element={<ProfilePage />} />
                     </Routes>
                 </Router>
             </div>

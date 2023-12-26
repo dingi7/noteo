@@ -99,7 +99,7 @@ const FolderList: React.FC<Props> = ({
     return (
         <div className="mt-20">
             {folders.map((folder) => (
-                <div key={folder._id} className="group mb-2 cursor-pointer">
+                <div key={folder._id} className="mb-2 cursor-pointer">
                     {editingFolderId === folder._id ? (
                         <div className="p-2">
                             <input
