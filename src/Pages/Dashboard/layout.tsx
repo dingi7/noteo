@@ -6,8 +6,10 @@ import NoteViewer from './NoteViewer';
 import { IFolder, INote } from '../../Interfaces/IItems';
 import { Navbar } from '../../Components/ui/navbar';
 import { getFolders, updateNote } from '../../api/requests';
+import { useAuthUser } from 'react-auth-kit';
 
 const Dashboard: React.FC = () => {
+    const user = useAuthUser()();
     const [folders, setFolders] = useState<IFolder[]>([]);
     const [selectedNote, setSelectedNote] = useState<INote | null>(null);
     const fetchData = useCallback(async () => {
@@ -68,6 +70,7 @@ const Dashboard: React.FC = () => {
                         note={selectedNote}
                         setSelectedNote={setSelectedNote}
                         updateNoteInFolders={updateNoteInFolders}
+                        user={user}
                     />
                 )}
             </div>

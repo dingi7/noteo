@@ -13,6 +13,7 @@ export const endpoints = {
         folderId ? `/items/folders/${folderId}` : `/items/folders`,
     note: (noteId: string | null) =>
         noteId ? `/items/notes/${noteId}` : `/items/notes`,
+    autoSave: '/auth/autoSave',
 };
 
 export const registerUser = async (
@@ -72,4 +73,8 @@ export const updateNote = async (
 
 export const renameNote = async (noteId: string, noteName: string) => {
     return api.put(endpoints.note(noteId), { name: noteName });
+};
+
+export const toggleAutoSave = async (autoSave: boolean) => {
+    return api.post(endpoints.autoSave, { autoSave });
 };
