@@ -81,7 +81,7 @@ const Dashboard: React.FC = () => {
                 <FolderList
                     folders={folders}
                     onNoteSelect={setSelectedNote}
-                    selecteNote={selectedNote}
+                    selectedNote={selectedNote}
                     setFolders={setFolders}
                 />
             </div>

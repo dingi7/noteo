@@ -17,14 +17,14 @@ interface Props {
     folders: IFolder[];
     onNoteSelect: (note: INote | null) => void;
     setFolders: Dispatch<SetStateAction<IFolder[]>>;
-    selecteNote: INote | null;
+    selectedNote: INote | null;
 }
 
 const FolderList: React.FC<Props> = ({
     folders,
     onNoteSelect,
     setFolders,
-    selecteNote,
+    selectedNote,
 }) => {
     const [isFolderDialogVisible, setIsFolderDialogVisible] = useState(false);
     const [isNoteDialogVisible, setIsNoteDialogVisible] = useState(false);
@@ -230,7 +230,7 @@ const FolderList: React.FC<Props> = ({
                                     ) : (
                                         <div
                                             className={`group cursor-pointer p-3 bg-white rounded-lg shadow hover:shadow-md transition-shadow duration-200 ease-in-out flex items-center gap-2 ${
-                                                note._id === selecteNote?._id
+                                                note._id === selectedNote?._id
                                                     ? 'bg-blue-100'
                                                     : 'bg-white'
                                             }`}
