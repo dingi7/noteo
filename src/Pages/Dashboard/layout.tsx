@@ -12,6 +12,7 @@ import { Link } from 'react-router-dom';
 const Dashboard: React.FC = () => {
     const user = useAuthUser()();
     const isAuth = useIsAuthenticated()();
+    const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
     const [folders, setFolders] = useState<IFolder[]>([]);
     const [selectedNote, setSelectedNote] = useState<INote | null>(null);
@@ -83,6 +84,8 @@ const Dashboard: React.FC = () => {
                     onNoteSelect={setSelectedNote}
                     selectedNote={selectedNote}
                     setFolders={setFolders}
+                    hasUnsavedChanges={hasUnsavedChanges}
+                    setHasUnsavedChanges={setHasUnsavedChanges}
                 />
             </div>
             <div className="w-2/3 p-4 overflow-auto">
@@ -92,6 +95,8 @@ const Dashboard: React.FC = () => {
                         setSelectedNote={setSelectedNote}
                         updateNoteInFolders={updateNoteInFolders}
                         user={user}
+                        hasUnsavedChanges={hasUnsavedChanges}
+                        setHasUnsavedChanges={setHasUnsavedChanges}
                     />
                 )}
             </div>

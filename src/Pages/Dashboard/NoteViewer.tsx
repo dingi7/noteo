@@ -11,6 +11,8 @@ interface Props {
         updatedFields: { title?: string; body?: string }
     ) => void;
     user: any;
+    hasUnsavedChanges: boolean;
+    setHasUnsavedChanges: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const NoteViewer: React.FC<Props> = ({
@@ -18,36 +20,43 @@ const NoteViewer: React.FC<Props> = ({
     setSelectedNote,
     updateNoteInFolders,
     user,
+    hasUnsavedChanges,
+    setHasUnsavedChanges,
 }) => {
     const [autoSave, setAutoSave] = React.useState<boolean>(
         user.autoSave || false
     );
-    const [newChanges, setNewChanges] = React.useState<boolean>(false);
 
     useEffect(() => {
         let timer: NodeJS.Timeout | null = null;
-        if (autoSave && newChanges) {
+        if (autoSave && hasUnsavedChanges) {
             timer = setTimeout(() => {
                 updateNoteInFolders(note._id, {
                     title: note.title,
                     body: note.body,
                 });
-                setNewChanges(false);
+                setHasUnsavedChanges(false);
             }, 10000);
         }
 
         return () => {
             if (timer) clearTimeout(timer);
         };
-    }, [autoSave, newChanges, note, updateNoteInFolders]);
+    }, [
+        autoSave,
+        hasUnsavedChanges,
+        note,
+        updateNoteInFolders,
+        setHasUnsavedChanges,
+    ]);
 
     const handleSave = () => {
-        if (!newChanges) return;
+        if (!hasUnsavedChanges) return;
         updateNoteInFolders(note._id, {
             title: note.title,
             body: note.body,
         });
-        setNewChanges(false);
+        setHasUnsavedChanges(false);
     };
 
     const handleChange = (
@@ -55,9 +64,17 @@ const NoteViewer: React.FC<Props> = ({
     ) => {
         const updatedFields = { [e.target.name]: e.target.value };
         setSelectedNote({ ...note, ...updatedFields });
-        setNewChanges(true);
+        setHasUnsavedChanges(true);
     };
     const handleAutoSaveChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const authState = JSON.parse(
+            localStorage.getItem('x-authorization_state')!
+        );
+        authState.autoSave = e.target.checked;
+        localStorage.setItem(
+            'x-authorization_state',
+            JSON.stringify(authState)
+        );
         setAutoSave(e.target.checked);
         toggleAutoSave(e.target.checked);
     };

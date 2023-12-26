@@ -1,8 +1,14 @@
 // src/FolderList.tsx
 
-import React, { Dispatch, SetStateAction, useState } from 'react';
+import React, {
+    Dispatch,
+    SetStateAction,
+    useCallback,
+    useEffect,
+    useState,
+} from 'react';
 import { IFolder, INote } from '../../Interfaces/IItems';
-import { Edit, Folder, StickyNote, Plus, Trash2 } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import {
     createFolder,
     createNote,
@@ -12,12 +18,16 @@ import {
     renameNote,
 } from '../../api/requests';
 import { ConfirmationDialog } from './components/ConfirmationDialog';
+import FolderItem from './components/FolderItem';
+import NoteItem from './components/NoteItem';
 
 interface Props {
     folders: IFolder[];
     onNoteSelect: (note: INote | null) => void;
     setFolders: Dispatch<SetStateAction<IFolder[]>>;
     selectedNote: INote | null;
+    hasUnsavedChanges: boolean;
+    setHasUnsavedChanges: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const FolderList: React.FC<Props> = ({
@@ -25,10 +35,14 @@ const FolderList: React.FC<Props> = ({
     onNoteSelect,
     setFolders,
     selectedNote,
+    hasUnsavedChanges,
+    setHasUnsavedChanges,
 }) => {
     const [isFolderDialogVisible, setIsFolderDialogVisible] = useState(false);
     const [isNoteDialogVisible, setIsNoteDialogVisible] = useState(false);
-
+    const [isUnsavedChangesDialogVisible, setIsUnsavedChangesDialogVisible] =
+        useState(false);
+    const [pendingNote, setPendingNote] = useState<INote | null>(null);
     const [editingFolderId, setEditingFolderId] = useState<string | null>(null);
     const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
     const [folderName, setFolderName] = useState<string>('');
@@ -39,7 +53,48 @@ const FolderList: React.FC<Props> = ({
         null
     );
 
-    const handleFoldereDelete = async () => {
+    useEffect(() => {
+        const handleBeforeUnload = (event: any) => {
+            if (hasUnsavedChanges) {
+                event.preventDefault();
+                event.returnValue =
+                    'You have unsaved changes! Are you sure you want to leave?';
+            }
+        };
+
+        window.addEventListener('beforeunload', handleBeforeUnload);
+
+        return () => {
+            window.removeEventListener('beforeunload', handleBeforeUnload);
+        };
+    }, [hasUnsavedChanges]);
+
+    const checkUnsavedChangesBeforeAction = useCallback(
+        (action: () => void, override?: boolean) => {
+            if (hasUnsavedChanges && !override) {
+                setIsUnsavedChangesDialogVisible(true);
+                return () => {
+                    action();
+                    setHasUnsavedChanges(false);
+                };
+            } else {
+                action();
+            }
+        },
+        [hasUnsavedChanges, setHasUnsavedChanges]
+    );
+
+    const onNoteDelete = useCallback((noteId: string) => {
+        setNoteToDeleteId(noteId);
+        setIsNoteDialogVisible(true);
+    }, []);
+
+    const onFolderDelete = useCallback((folderId: string) => {
+        setFolderToDeleteId(folderId);
+        setIsFolderDialogVisible(true);
+    }, []);
+
+    const handleFolderDelete = useCallback(async () => {
         const updatedFolders = folders.filter(
             (folder) => folder._id !== folderToDeleteId
         );
@@ -47,9 +102,9 @@ const FolderList: React.FC<Props> = ({
         await deleteFolder(folderToDeleteId!);
         setFolderToDeleteId(null);
         setIsFolderDialogVisible(false);
-    };
+    }, [folders, folderToDeleteId, setFolders]);
 
-    const handleNoteDelete = async () => {
+    const handleNoteDelete = useCallback(async () => {
         const updatedFolders = folders.map((folder) => {
             if (folder._id === openFolderId) {
                 return {
@@ -65,73 +120,86 @@ const FolderList: React.FC<Props> = ({
         await deleteNote(noteToDeleteId!);
         setNoteToDeleteId(null);
         setIsNoteDialogVisible(false);
-    };
+    }, [folders, noteToDeleteId, openFolderId, setFolders]);
 
-    const handleFolderEdit = (folder: IFolder) => {
+    const handleFolderEdit = useCallback((folder: IFolder) => {
         setEditingFolderId(folder._id);
         setFolderName(folder.name);
-    };
+    }, []);
 
-    const handleNoteEdit = (note: INote) => {
+    const handleNoteEdit = useCallback((note: INote) => {
         setEditingNoteId(note._id);
         setNoteName(note.name);
-    };
-    const handleNewNote = async (folder: IFolder) => {
-        const newNote = await createNote('New Note', folder._id);
-        const updatedFolders = folders.map((folder) => {
-            if (folder._id === openFolderId) {
-                return { ...folder, notes: [...folder.notes, newNote] };
-            }
-            return folder;
-        });
-        setFolders(updatedFolders);
-        setNoteName('');
-    };
+    }, []);
 
-    const handleNewFolder = async () => {
+    const handleNewNote = useCallback(
+        async (folder: IFolder) => {
+            const newNote = await createNote('New Note', folder._id);
+            const updatedFolders = folders.map((f) =>
+                f._id === openFolderId
+                    ? { ...f, notes: [...f.notes, newNote] }
+                    : f
+            );
+            setFolders(updatedFolders);
+            setNoteName('');
+        },
+        [openFolderId, folders, setFolders]
+    );
+
+    const handleNewFolder = useCallback(async () => {
         const newFolder = await createFolder('New Folder');
-        setFolders([...folders, newFolder]);
+        setFolders((prevFolders) => [...prevFolders, newFolder]);
         setFolderName('');
-    };
+    }, [setFolders]);
 
-    const saveFolder = async () => {
-        setFolders(
-            folders.map((folder) => {
-                if (folder._id === editingFolderId) {
-                    return { ...folder, name: folderName };
-                }
-                return folder;
-            })
+    const saveFolder = useCallback(async () => {
+        const updatedFolders = folders.map((f) =>
+            f._id === editingFolderId ? { ...f, name: folderName } : f
         );
+        setFolders(updatedFolders);
         await renameFolder(editingFolderId!, folderName);
         setEditingFolderId(null);
-    };
+    }, [editingFolderId, folderName, folders, setFolders]);
 
-    const saveNote = async () => {
-        setFolders(
-            folders.map((folder) => {
-                if (folder._id === openFolderId) {
-                    return {
-                        ...folder,
-                        notes: folder.notes.map((note) => {
-                            if (note._id === editingNoteId) {
-                                return { ...note, name: noteName };
-                            }
-                            return note;
-                        }),
-                    };
-                }
-                return folder;
-            })
-        );
+    const saveNote = useCallback(async () => {
+        const updatedFolders = folders.map((f) => {
+            if (f._id === openFolderId) {
+                return {
+                    ...f,
+                    notes: f.notes.map((n) =>
+                        n._id === editingNoteId ? { ...n, name: noteName } : n
+                    ),
+                };
+            }
+            return f;
+        });
+        setFolders(updatedFolders);
         await renameNote(editingNoteId!, noteName);
         setEditingNoteId(null);
-    };
+    }, [editingNoteId, noteName, openFolderId, folders, setFolders]);
 
-    const toggleFolder = (folderId: string) => {
-        setOpenFolderId(openFolderId?.includes(folderId) ? null : folderId);
-        onNoteSelect(null);
-    };
+    const toggleFolder = useCallback(
+        (folderId: string) => {
+            checkUnsavedChangesBeforeAction(() => {
+                setOpenFolderId((prevOpenFolderId) =>
+                    prevOpenFolderId?.includes(folderId) ? null : folderId
+                );
+                onNoteSelect(null);
+            });
+        },
+        [checkUnsavedChangesBeforeAction, onNoteSelect]
+    );
+
+    const handleNoteSelection = useCallback(
+        (note: INote | null) => {
+            setPendingNote(note);
+            checkUnsavedChangesBeforeAction(() => {
+                onNoteSelect(note);
+                setPendingNote(null);
+            });
+        },
+        [checkUnsavedChangesBeforeAction, onNoteSelect]
+    );
 
     return (
         <div className="mt-20">
@@ -139,7 +207,7 @@ const FolderList: React.FC<Props> = ({
                 isVisible={isFolderDialogVisible}
                 message="Are you sure you want to delete this folder and all notes in it?"
                 onConfirm={() => {
-                    handleFoldereDelete();
+                    handleFolderDelete();
                 }}
                 onCancel={() => {
                     setIsFolderDialogVisible(false);
@@ -156,6 +224,19 @@ const FolderList: React.FC<Props> = ({
                     setIsNoteDialogVisible(false);
                     setNoteToDeleteId(null);
                 }}
+            />
+            <ConfirmationDialog
+                isVisible={isUnsavedChangesDialogVisible}
+                message="You have unsaved changes! Are you sure you want to leave?"
+                onConfirm={() => {
+                    setIsUnsavedChangesDialogVisible(false);
+                    setHasUnsavedChanges(false);
+                    checkUnsavedChangesBeforeAction(
+                        () => onNoteSelect(pendingNote),
+                        true
+                    );
+                }}
+                onCancel={() => setIsUnsavedChangesDialogVisible(false)}
             />
             {folders.map((folder) => (
                 <div key={folder._id} className="mb-2 cursor-pointer">
@@ -176,36 +257,12 @@ const FolderList: React.FC<Props> = ({
                             />
                         </div>
                     ) : (
-                        <div
-                            className="group flex items-center p-3 m-2 bg-white hover:bg-slate-300 active:bg-slate-400 rounded-lg transition duration-300 ease-in-out shadow-sm"
-                            onClick={() => toggleFolder(folder._id)}
-                        >
-                            <span className="text-xl text-gray-600">
-                                <Folder />
-                            </span>
-                            <span className="flex-grow ml-2 font-semibold text-lg text-gray-800 cursor-pointer">
-                                {folder.name}
-                            </span>
-                            <span className="opacity-0 transition duration-300 ease-in-out group-hover:opacity-100">
-                                <Edit
-                                    className="text-gray-600 hover:text-gray-800 cursor-pointer"
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleFolderEdit(folder);
-                                    }}
-                                />
-                            </span>
-                            <span className="opacity-0 transition duration-300 ease-in-out group-hover:opacity-100">
-                                <Trash2
-                                    className="text-gray-600 hover:text-gray-800 cursor-pointer"
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        setIsFolderDialogVisible(true);
-                                        setFolderToDeleteId(folder._id);
-                                    }}
-                                />
-                            </span>
-                        </div>
+                        <FolderItem
+                            folder={folder}
+                            onEdit={handleFolderEdit}
+                            onDelete={onFolderDelete}
+                            onToggle={toggleFolder}
+                        ></FolderItem>
                     )}
                     {openFolderId === folder._id && (
                         <div className="pl-5 mt-2 pr-2">
@@ -228,44 +285,15 @@ const FolderList: React.FC<Props> = ({
                                             className="cursor-pointer p-3 w-full bg-white border border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:outline-none transition duration-300 ease-in-out"
                                         />
                                     ) : (
-                                        <div
-                                            className={`group cursor-pointer p-3 bg-white rounded-lg shadow hover:shadow-md transition-shadow duration-200 ease-in-out flex items-center gap-2 ${
-                                                note._id === selectedNote?._id
-                                                    ? 'bg-blue-100'
-                                                    : 'bg-white'
-                                            }`}
-                                            onClick={() => onNoteSelect(note)}
-                                        >
-                                            <span>
-                                                <StickyNote />
-                                            </span>
-                                            <h3 className="flex-grow ml-2 font-semibold text-md text-gray-800 cursor-pointer">
-                                                {note.name}
-                                            </h3>
-                                            <span className="opacity-0 transition duration-300 ease-in-out group-hover:opacity-100">
-                                                <Edit
-                                                    className="text-gray-600 hover:text-gray-800 cursor-pointer"
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        handleNoteEdit(note);
-                                                    }}
-                                                />
-                                            </span>
-                                            <span className="opacity-0 transition duration-300 ease-in-out group-hover:opacity-100">
-                                                <Trash2
-                                                    className="text-gray-600 hover:text-gray-800 cursor-pointer"
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        setIsNoteDialogVisible(
-                                                            true
-                                                        );
-                                                        setNoteToDeleteId(
-                                                            note._id
-                                                        );
-                                                    }}
-                                                />
-                                            </span>
-                                        </div>
+                                        <NoteItem
+                                            note={note}
+                                            onDelete={onNoteDelete}
+                                            onEdit={handleNoteEdit}
+                                            onSelect={() =>
+                                                handleNoteSelection(note)
+                                            }
+                                            selectedNote={selectedNote}
+                                        ></NoteItem>
                                     )}
                                 </div>
                             ))}
