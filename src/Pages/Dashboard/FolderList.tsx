@@ -6,6 +6,8 @@ import { Edit, Folder, StickyNote, Plus, Trash2 } from 'lucide-react';
 import {
     createFolder,
     createNote,
+    deleteFolder,
+    deleteNote,
     renameFolder,
     renameNote,
 } from '../../api/requests';
@@ -32,6 +34,38 @@ const FolderList: React.FC<Props> = ({
     const [folderName, setFolderName] = useState<string>('');
     const [noteName, setNoteName] = useState<string>('');
     const [openFolderId, setOpenFolderId] = useState<string | null>(null);
+    const [noteToDeleteId, setNoteToDeleteId] = useState<string | null>(null);
+    const [folderToDeleteId, setFolderToDeleteId] = useState<string | null>(
+        null
+    );
+
+    const handleFoldereDelete = async () => {
+        const updatedFolders = folders.filter(
+            (folder) => folder._id !== folderToDeleteId
+        );
+        setFolders(updatedFolders);
+        await deleteFolder(folderToDeleteId!);
+        setFolderToDeleteId(null);
+        setIsFolderDialogVisible(false);
+    };
+
+    const handleNoteDelete = async () => {
+        const updatedFolders = folders.map((folder) => {
+            if (folder._id === openFolderId) {
+                return {
+                    ...folder,
+                    notes: folder.notes.filter(
+                        (note) => note._id !== noteToDeleteId
+                    ),
+                };
+            }
+            return folder;
+        });
+        setFolders(updatedFolders);
+        await deleteNote(noteToDeleteId!);
+        setNoteToDeleteId(null);
+        setIsNoteDialogVisible(false);
+    };
 
     const handleFolderEdit = (folder: IFolder) => {
         setEditingFolderId(folder._id);
@@ -103,15 +137,25 @@ const FolderList: React.FC<Props> = ({
         <div className="mt-20">
             <ConfirmationDialog
                 isVisible={isFolderDialogVisible}
-                message="Are you sure you want to delete this folder?"
-                onConfirm={() => {}}
-                onCancel={() => setIsFolderDialogVisible(false)}
+                message="Are you sure you want to delete this folder and all notes in it?"
+                onConfirm={() => {
+                    handleFoldereDelete();
+                }}
+                onCancel={() => {
+                    setIsFolderDialogVisible(false);
+                    setFolderToDeleteId(null);
+                }}
             />
             <ConfirmationDialog
                 isVisible={isNoteDialogVisible}
                 message="Are you sure you want to delete this note?"
-                onConfirm={() => {}}
-                onCancel={() => setIsNoteDialogVisible(false)}
+                onConfirm={() => {
+                    handleNoteDelete();
+                }}
+                onCancel={() => {
+                    setIsNoteDialogVisible(false);
+                    setNoteToDeleteId(null);
+                }}
             />
             {folders.map((folder) => (
                 <div key={folder._id} className="mb-2 cursor-pointer">
@@ -157,6 +201,7 @@ const FolderList: React.FC<Props> = ({
                                     onClick={(e) => {
                                         e.stopPropagation();
                                         setIsFolderDialogVisible(true);
+                                        setFolderToDeleteId(folder._id);
                                     }}
                                 />
                             </span>
@@ -213,6 +258,9 @@ const FolderList: React.FC<Props> = ({
                                                         e.stopPropagation();
                                                         setIsNoteDialogVisible(
                                                             true
+                                                        );
+                                                        setNoteToDeleteId(
+                                                            note._id
                                                         );
                                                     }}
                                                 />
