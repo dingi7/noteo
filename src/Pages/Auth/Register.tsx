@@ -44,55 +44,55 @@ const Register = () => {
     };
 
     return (
-        <div className="h-screen bg-white flex justify-center items-center">
+        <div className='h-screen bg-white flex justify-center items-center'>
             <Navbar></Navbar>
-            <div className="w-[600px] border-1 bg-[#e2e2e2] rounded-md flex flex-col p-12 pb-16 justify-between">
-                <div className="mx-auto">
+            <div className='w-[600px] border-1 bg-[#e2e2e2] rounded-md flex flex-col p-12 pb-16 justify-between'>
+                <div className='mx-auto'>
                     <Logo />
                 </div>
                 <form onSubmit={handleSubmit}>
                     <div>
                         <AuthInput
-                            type="email"
-                            text="Email"
-                            id="email"
+                            type='email'
+                            text='Email'
+                            id='email'
                             onChange={handleInputChange}
                         />
                         <AuthInput
-                            type="text"
-                            text="First Name"
-                            id="firstName"
+                            type='text'
+                            text='First Name'
+                            id='firstName'
                             onChange={handleInputChange}
                         />
                         <AuthInput
-                            type="text"
-                            text="Username"
-                            id="username"
+                            type='text'
+                            text='Username'
+                            id='username'
                             onChange={handleInputChange}
                         />
                         <AuthInput
-                            type="password"
-                            text="Password"
-                            id="password"
+                            type='password'
+                            text='Password'
+                            id='password'
                             onChange={handleInputChange}
                         />
                         <AuthInput
-                            type="password"
-                            text="Confirm Password"
-                            id="confirmPassword"
+                            type='password'
+                            text='Confirm Password'
+                            id='confirmPassword'
                             onChange={handleInputChange}
                         />
-                        <div className="text-black text-left">
+                        <div className='text-black text-left'>
                             Already registered?{' '}
-                            <Link to="/login" className="font-bold ">
+                            <Link to='/login' className='font-bold '>
                                 Login
                             </Link>
                         </div>
                     </div>
                     <Button
-                        className="shadow border-1 mt-4 font-semibold border-slate-800 bg-white rounded w-full py-3 px-3 leading-tight focus:outline-none focus:shadow-outline outline-none hover:bg-zinc-100"
-                        type="submit"
-                        id="registerButton"
+                        className='shadow border-1 mt-4 font-semibold border-slate-800 bg-white rounded w-full py-3 px-3 leading-tight focus:outline-none focus:shadow-outline outline-none hover:bg-zinc-100'
+                        type='submit'
+                        id='registerButton'
                     >
                         Register
                     </Button>
